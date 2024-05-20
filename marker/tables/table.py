@@ -100,7 +100,7 @@ def get_table_pdftext(page: Page, table_box, space_tol=.01, round_factor=4) -> L
         table_row = sorted(table_row, key=lambda x: round(x[0][0] / round_factor))
         table_rows.append(table_row)
 
-    table_rows = assign_cells_to_columns(page, table_box, table_rows)
+    table_rows = assign_cells_to_columns(table_rows)
     return table_rows
 
 
