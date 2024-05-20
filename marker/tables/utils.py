@@ -1,17 +1,25 @@
 import re
+from sklearn.cluster import DBSCAN
+import  numpy as np
 
 
-def sort_table_blocks(blocks, tolerance=5):
+def sort_table_blocks(blocks):
+    
+    y_coords = [block.bbox[1] if hasattr(block, "bbox") 
+                else block["bbox"][1] 
+                for block in blocks]
+
+    y_coords = np.array(y_coords).reshape(-1, 1)
+
+    clustering = DBSCAN(eps=3, min_samples=1).fit(y_coords)
+
+    clusters = clustering.labels_
+    
     vertical_groups = {}
-    for block in blocks:
-        if hasattr(block, "bbox"):
-            bbox = block.bbox
-        else:
-            bbox = block["bbox"]
-        group_key = round(bbox[1] / tolerance)
-        if group_key not in vertical_groups:
-            vertical_groups[group_key] = []
-        vertical_groups[group_key].append(block)
+    for row, block in zip(clusters.tolist(), blocks):
+        if row not in vertical_groups:
+            vertical_groups[row] = []
+        vertical_groups[row].append(block)
 
     # Sort each group horizontally and flatten the groups into a single list
     sorted_blocks = []
