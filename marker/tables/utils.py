@@ -16,14 +16,14 @@ def sort_table_blocks(blocks):
     clusters = clustering.labels_
     
     vertical_groups = {}
-    for row, block in zip(clusters.tolist(), blocks):
-        if row not in vertical_groups:
-            vertical_groups[row] = []
-        vertical_groups[row].append(block)
+    for group, block, _ in sorted(zip(clusters.tolist(), blocks, y_coords), key=lambda x: x[2]):
+        if group not in vertical_groups:
+            vertical_groups[group] = []
+        vertical_groups[group].append(block)
 
     # Sort each group horizontally and flatten the groups into a single list
     sorted_blocks = []
-    for _, group in sorted(vertical_groups.items()):
+    for _, group in vertical_groups.items():
         sorted_group = sorted(group, key=lambda x: x.bbox[0] if hasattr(x, "bbox") else x["bbox"][0])
         sorted_blocks.extend(sorted_group)
 
