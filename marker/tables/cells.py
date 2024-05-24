@@ -1,4 +1,5 @@
 import numpy as np
+from statistics import mode
 
 def assign_cells_to_columns(rows):
     row_ref = max(rows, key=lambda x: len(x))
@@ -11,9 +12,18 @@ def assign_cells_to_columns(rows):
         new_row = {}
         for cell in row:
             left_edge = np.array(cell[0][0])
-            distances = np.abs(left_edge - left_edges_ref)
+            middle_edge = np.array(cell[0][0] + (cell[0][2] - cell[0][0])/2)
+            right_edge = np.array(cell[0][2])
+            left_distances = np.abs(left_edge - left_edges_ref)
+            middle_distances = np.abs(right_edge - left_edges_ref)
+            right_distances = np.abs(middle_edge - left_edges_ref)
+            min_distances_idx = [np.argmin(left_distances), np.argmin(middle_distances), np.argmin(right_distances)]
+            mode_column = mode(min_distances_idx)
+            distances = [left_distances, middle_distances, right_distances][min_distances_idx.index(mode_column)]
+
             columns_index = sorted([(dist, idx) for dist, idx in zip(distances, range(len(distances)))], 
                                    key=lambda x: x[0])
+            
             for idx_col in columns_index:
                 column_index = idx_col[1]
                 if column_index not in new_row:
