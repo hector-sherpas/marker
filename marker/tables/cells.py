@@ -1,11 +1,27 @@
+from marker.tables.utils import get_clusters
+
 import numpy as np
 from statistics import mode
+from collections import Counter
 
 def assign_cells_to_columns(rows):
+    # Find table columns number
     row_ref = max(rows, key=lambda x: len(x))
-    idx_row_ref = rows.index(row_ref)
-    left_edges_ref = np.array([cell[0][0] for cell in row_ref])
+    rows_len = [len(row) for row in rows]
+    cols_frec = Counter(rows_len).most_common(3)
+    if len(row_ref) == cols_frec[0][0]:
+        idx_row_ref = rows.index(row_ref)
+    else:
+        cols = [num_cols[0] for num_cols in cols_frec]
+        distances = np.abs(np.array(cols) - np.array(len(row_ref)))
+        columns_index = sorted([(dist, idx) for idx, dist in enumerate(distances)], 
+                                   key=lambda x: x[0])
+        num_cols = cols[columns_index[0][1]]
+        idx_row_ref = rows_len.index(num_cols)
+        row_ref = rows[idx_row_ref]
+
     idx_cols_table = set(range(len(row_ref)))
+    middle_edges_ref = np.array([cell[0][0] + (cell[0][2] - cell[0][0])/2 for cell in row_ref])
 
     new_rows = []
     for idx_row, row in enumerate(rows):
@@ -14,9 +30,9 @@ def assign_cells_to_columns(rows):
             left_edge = np.array(cell[0][0])
             middle_edge = np.array(cell[0][0] + (cell[0][2] - cell[0][0])/2)
             right_edge = np.array(cell[0][2])
-            left_distances = np.abs(left_edge - left_edges_ref)
-            middle_distances = np.abs(right_edge - left_edges_ref)
-            right_distances = np.abs(middle_edge - left_edges_ref)
+            left_distances = np.abs(left_edge - middle_edges_ref)
+            middle_distances = np.abs(middle_edge - middle_edges_ref)
+            right_distances = np.abs(right_edge - middle_edges_ref)
             min_distances_idx = [np.argmin(left_distances), np.argmin(middle_distances), np.argmin(right_distances)]
             mode_column = mode(min_distances_idx)
             distances = [left_distances, middle_distances, right_distances][min_distances_idx.index(mode_column)]
