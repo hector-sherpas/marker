@@ -50,7 +50,7 @@ def group_blocks(blocks, criteria):
         vertical_groups[group].extend([block] if isinstance(block, dict) 
                                       else block)
 
-    return 
+    return vertical_groups
 
 
 def sort_table_blocks(blocks):
